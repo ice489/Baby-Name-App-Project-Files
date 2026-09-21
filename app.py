@@ -1,3 +1,5 @@
+from os import name
+
 from flask import Flask, request, Response, render_template
 import json
 import pandas as pd
@@ -42,7 +44,10 @@ def get_name_popularity():
     
     # Extract year and rank in year for the given name-sex combination
 
+    name_subset = babynames[(babynames['name'] == name_submitted) & (babynames['sex'] == sex_submitted)]
 
+    name_years = name_subset['year'].tolist()
+    name_ranks = name_subset['rank_in_year'].tolist()
 
     # Some names do not appear in all years
     #
@@ -68,6 +73,8 @@ def get_name_popularity():
 # Name the columns 'sex', 'year', 'name' and 'count
 # Name this dataframe "babynames"
 
+babynames = pd.read_csv('./data/babynames.csv', names=['sex', 'year', 'name', 'count'])
+
 
 
 # Construct a column giving the rank within each year and sex for each name
@@ -80,3 +87,4 @@ def get_name_popularity():
 #Calculate rank in year by grouping babynames by 'year' and then 'sex'
 #Then calculate the rank() of 'count' where ascending=False
 
+babynames['rank_in_year'] = (babynames.groupby(['year', 'sex'])['count'].rank(ascending=False))
